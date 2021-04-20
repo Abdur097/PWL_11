@@ -33,7 +33,14 @@ class TodoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validated();
+
+        $user = auth()->user();
+        $todo = new Todo($request->all());
+        $todo->user()->associate($user);
+        $todo->save();
+
+        return $this->apiSuccess($todo->load('user'));
     }
 
     /**
