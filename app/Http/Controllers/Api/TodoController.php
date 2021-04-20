@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Todo;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 
 class TodoController extends Controller
@@ -13,9 +14,15 @@ class TodoController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    use ApiResponse;
     public function index()
     {
-        //
+        $user = auth()->user();
+        $todos = Todo::with($user)
+            ->where('user_id', $user->id)
+            ->get();
+
+        return $this->apiSuccess($todos);
     }
 
     /**
