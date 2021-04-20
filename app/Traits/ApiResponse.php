@@ -1,20 +1,37 @@
 <?php
-    namespace App\Traits;
+   namespace App\Http\Requests;
 
-    trait ApiResponse{
-
-        protected function apiSuccess($data, $code = 200, $message = null){
-            return response()->json([
-                'data' => $data,
-                'message' => $message
-            ], $code);
-        }
-
-        protected function apiError($errors, $code, $message = null){
-            return response()->json([
-                'errors' => $errors,
-                'message' => $message
-            ], $code);
-        }
-    }
+   use App\Traits\ApiResponse;
+   use Illuminate\Contracts\Validation\Validator;
+   use Illuminate\Foundation\Http\FormRequest;
+   use Illuminate\Http\Exceptions\HttpResponseException;
+   use Illuminate\Http\Response;
+   
+   abstract class ApiRequest extends FormRequest
+   {
+       use ApiResponse;
+   
+       /**
+        * Get the validation rules that apply to the request.
+        *
+        * @return array
+        */
+       abstract public function rules();
+   
+       protected function failedValidation(Validator $validator)
+       {
+           throw new HttpResponseException($this->apiError(
+               $validator->errors(),
+               Response::HTTP_UNPROCESSABLE_ENTITY
+           ));
+       }
+   
+       protected function failedAuthorization()
+       {
+           throw new HttpResponseException($this->apiError(
+               null,
+               Response::HTTP_UNAUTHORIZED
+           ));
+       }
+   }
 ?>
