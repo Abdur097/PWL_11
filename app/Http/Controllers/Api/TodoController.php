@@ -80,6 +80,14 @@ class TodoController extends Controller
      */
     public function destroy(Todo $todo)
     {
-        //
+        if(auth()->user()->id == $todo->user_id){
+            $todo->delete();
+            return $this->apiSuccess($todo);
+        }
+
+        return $this->apiError(
+            'Unauthorized',
+            Response::HTTP_UNAUTHORIZED
+        );
     }
 }
